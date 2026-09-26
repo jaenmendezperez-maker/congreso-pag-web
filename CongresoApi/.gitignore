@@ -1,0 +1,36 @@
+# --- Credenciales y secretos: NUNCA deben subirse ---
+credenciales/
+*.json.bak
+appsettings.Production.json
+appsettings.*.local.json
+
+# --- Build de .NET ---
+bin/
+obj/
+out/
+
+# --- Visual Studio / VS Code ---
+.vs/
+.vscode/
+*.user
+*.suo
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Migraciones generadas automáticamente (opcional: normalmente SÍ se suben) ---
+# Si prefieres no versionarlas, descomenta la siguiente línea.
+# Migrations/
+
+# --- Archivos de sistema ---
+.DS_Store
+Thumbs.db
+
+# --- Variables de entorno locales ---
+.env
+.env.local
+
+# --- Paquetes NuGet restaurados ---
+*.nupkg
+packages/

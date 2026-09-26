@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: congreso-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: congreso
+      POSTGRES_PASSWORD: congreso123
+      POSTGRES_DB: congreso
+    ports:
+      - "5432:5432"
+    volumes:
+      - congreso_db_data:/var/lib/postgresql/data
+
+volumes:
+  congreso_db_data:

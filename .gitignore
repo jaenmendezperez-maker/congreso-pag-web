@@ -1,0 +1,30 @@
+# ============ Backend (.NET) ============
+CongresoApi/credenciales/
+CongresoApi/appsettings.json
+CongresoApi/appsettings.Production.json
+CongresoApi/appsettings.*.local.json
+!CongresoApi/appsettings.example.json
+CongresoApi/bin/
+CongresoApi/obj/
+CongresoApi/out/
+*.user
+*.suo
+
+# ============ Frontend (Next.js) ============
+congreso-web/node_modules/
+congreso-web/.next/
+congreso-web/out/
+congreso-web/build/
+congreso-web/.env*
+!congreso-web/.env.example
+congreso-web/*.tsbuildinfo
+congreso-web/next-env.d.ts
+congreso-web/.vercel
+
+# ============ General ============
+.DS_Store
+Thumbs.db
+*.log
+logs/
+.vscode/
+.vs/
