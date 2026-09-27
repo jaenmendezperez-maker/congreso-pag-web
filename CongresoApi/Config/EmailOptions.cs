@@ -19,4 +19,11 @@ public class EmailOptions
 
     public string NombreRemitente { get; set; } = "Congreso";
     public string AsuntoCorreo { get; set; } = "Tu código de acceso al congreso";
+
+    /// <summary>
+    /// URL pública del PDF con el programa del congreso. Si se configura, se descarga
+    /// una sola vez (se guarda en memoria) y se adjunta en cada correo, además de
+    /// incluir el link como texto por si alguien prefiere verlo en el navegador.
+    /// </summary>
+    public string? ProgramaPdfUrl { get; set; }
 }

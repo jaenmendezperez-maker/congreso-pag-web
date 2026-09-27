@@ -60,12 +60,24 @@ public class QrController : ControllerBase
     /// sirve igual para el envío inicial que para los que se registren después.
     /// Manda uno por uno con una pequeña pausa, para no saturar los límites de Gmail.
     /// </summary>
+    /// <summary>
+    /// Envía el QR a los asistentes que todavía no lo han recibido (QrEnviadoAt == null),
+    /// EN LOTES (por defecto 25 a la vez). Mandar cientos de correos en una sola petición
+    /// HTTP tarda varios minutos (por la pausa entre envíos) y el navegador/proxy corta
+    /// la conexión antes de terminar — por eso se procesa en tandas cortas. El panel
+    /// llama a este endpoint repetidamente hasta que ya no queden pendientes.
+    /// </summary>
     [HttpPost("enviar-pendientes")]
-    public async Task<IActionResult> EnviarPendientes()
+    public async Task<IActionResult> EnviarPendientes([FromQuery] int limite = 10)
     {
         var pendientes = await _db.Asistentes
             .Where(a => a.QrEnviadoAt == null && a.Correo != "")
+            .OrderBy(a => a.Id)
+            .Take(limite)
             .ToListAsync();
+
+        var totalPendientesReal = await _db.Asistentes
+            .CountAsync(a => a.QrEnviadoAt == null && a.Correo != "");
 
         var enviados = 0;
         var fallidos = new List<string>();
@@ -76,9 +88,10 @@ public class QrController : ControllerBase
             {
                 await _email.EnviarQrAsync(asistente);
                 asistente.QrEnviadoAt = DateTime.UtcNow;
-                await _db.SaveChangesAsync(); // se guarda uno por uno para no perder avance si algo falla a la mitad
+                await _db.SaveChangesAsync();
                 enviados++;
-                await Task.Delay(1200); // pausa breve entre envíos, Gmail limita ráfagas muy rápidas
+                _logger.LogInformation("Correo enviado a {Correo} ({Enviados}/{Limite} de este lote)", asistente.Correo, enviados, limite);
+                await Task.Delay(2500);
             }
             catch (Exception ex)
             {
@@ -87,7 +100,15 @@ public class QrController : ControllerBase
             }
         }
 
-        return Ok(new { totalPendientesAlEmpezar = pendientes.Count, enviados, fallidos });
+        var quedanPendientes = totalPendientesReal - enviados;
+
+        return Ok(new
+        {
+            totalPendientesAlEmpezar = totalPendientesReal,
+            enviados,
+            fallidos,
+            quedanPendientes
+        });
     }
 
     /// <summary>

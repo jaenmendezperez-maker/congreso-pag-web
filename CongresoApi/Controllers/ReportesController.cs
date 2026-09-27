@@ -72,7 +72,8 @@ public class ReportesController : ControllerBase
             {
                 Origen = g.Key,
                 Total = g.Count(),
-                Entregados = g.Count(a => a.EntregadoAt != null)
+                Entregados = g.Count(a => a.EntregadoAt != null),
+                QrEnviados = g.Count(a => a.QrEnviadoAt != null)
             })
             .ToListAsync();
 
@@ -82,7 +83,7 @@ public class ReportesController : ControllerBase
         var ultimosEscaneosCrudos = await _db.Escaneos
             .Where(e => e.Resultado == ResultadoEscaneo.Ok)
             .OrderByDescending(e => e.CreadoEn)
-            .Take(10)
+            .Take(5)
             .Select(e => new
             {
                 e.Asistente,
@@ -105,8 +106,8 @@ public class ReportesController : ControllerBase
 
         return Ok(new ResumenResponse
         {
-            Usep = new ResumenGrupo { Total = usep?.Total ?? 0, Entregados = usep?.Entregados ?? 0 },
-            Extranjeros = new ResumenGrupo { Total = extranjeros?.Total ?? 0, Entregados = extranjeros?.Entregados ?? 0 },
+            Usep = new ResumenGrupo { Total = usep?.Total ?? 0, Entregados = usep?.Entregados ?? 0, QrEnviados = usep?.QrEnviados ?? 0 },
+            Extranjeros = new ResumenGrupo { Total = extranjeros?.Total ?? 0, Entregados = extranjeros?.Entregados ?? 0, QrEnviados = extranjeros?.QrEnviados ?? 0 },
             UltimosEscaneos = ultimosEscaneos
         });
     }

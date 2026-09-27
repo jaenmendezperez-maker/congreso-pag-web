@@ -5,6 +5,7 @@ public class ResumenGrupo
     public int Total { get; set; }
     public int Entregados { get; set; }
     public int Pendientes => Total - Entregados;
+    public int QrEnviados { get; set; }
 }
 
 public class ResumenResponse

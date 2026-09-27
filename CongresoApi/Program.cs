@@ -7,6 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Por defecto, Kestrel (el servidor de .NET) corta la conexión si una petición
+// se queda "callada" varios segundos sin mandar ninguna respuesta. El envío
+// masivo de correos hace eso a propósito (procesa todo el lote antes de
+// responder), así que hay que desactivar ese límite para que no lo corte.
+builder.WebHost.ConfigureKestrel(opciones =>
+{
+    opciones.Limits.MinResponseDataRate = null;
+    opciones.Limits.MinRequestBodyDataRate = null;
+    opciones.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(15);
+});
+
 // --- Controladores + Swagger (documentación interactiva de la API) ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -37,6 +48,7 @@ builder.Services.AddScoped<GoogleSheetsClient>();
 builder.Services.AddScoped<SincronizacionService>();
 builder.Services.AddSingleton<QrService>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddHttpClient();
 
 // --- Sincronización automática en segundo plano ---
 builder.Services.AddHostedService<CongresoApi.Workers.SincronizacionAutomaticaWorker>();

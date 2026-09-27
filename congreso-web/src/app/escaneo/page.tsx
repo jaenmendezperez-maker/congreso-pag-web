@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { api, EscaneoResponse } from "../../lib/api";
-
+import { api, EscaneoResponse } from '../../lib/api';
 type Estado = "config" | "listo" | "procesando" | "resultado";
 
 export default function PaginaEscaneo() {
@@ -72,7 +71,17 @@ export default function PaginaEscaneo() {
       scanner
         .start(
           { facingMode: camaraTrasera ? "environment" : "user" },
-          { fps: 10, qrbox: { width: 260, height: 260 } },
+          {
+            fps: 10,
+            // Tamaño del recuadro calculado según la pantalla real (70% del lado más
+            // chico de la vista de la cámara), en vez de un valor fijo en píxeles que
+            // se ve mal o se corta en celulares angostos.
+            qrbox: (viewfinderWidth, viewfinderHeight) => {
+              const ladoMenor = Math.min(viewfinderWidth, viewfinderHeight);
+              const tamano = Math.floor(ladoMenor * 0.7);
+              return { width: tamano, height: tamano };
+            },
+          },
           (textoDecodificado) => {
             scanner.pause(true);
             procesarQr(textoDecodificado);
@@ -176,13 +185,16 @@ export default function PaginaEscaneo() {
               className="underline"
               title="Cambiar cámara"
             >
-              🔄 Voltear cámara
+              Voltear cámara
             </button>
             <button onClick={cambiarEstacion} className="underline">Cambiar</button>
           </div>
         </header>
         <div className="flex-1 flex items-center justify-center p-4">
-          <div id="lector-qr" className="w-full max-w-md rounded-2xl overflow-hidden" />
+          <div
+            id="lector-qr"
+            className="w-full max-w-md aspect-square rounded-2xl overflow-hidden [&_video]:!w-full [&_video]:!h-full [&_video]:object-cover"
+          />
         </div>
         {estado === "procesando" && (
           <p className="text-center text-slate-300 pb-8 text-lg">Verificando…</p>

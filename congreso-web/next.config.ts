@@ -4,6 +4,15 @@ const BACKEND_URL = process.env.BACKEND_INTERNAL_URL ?? "http://localhost:5232";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["unstirred-dish-grandkid.ngrok-free.dev"],
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/admin",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

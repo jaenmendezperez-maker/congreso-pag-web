@@ -3,6 +3,12 @@
 // necesita exponer el frontend con ngrok — el backend nunca sale a internet directamente.
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
+// URL directa al backend, SIN pasar por el proxy de Next.js. El proxy corta las
+// peticiones muy largas (el envío masivo de correos tarda varios minutos), así
+// que esa llamada específica le habla directo al backend en vez de pasar por
+// next.config.ts. El CORS del backend ya permite localhost:3000.
+const BACKEND_DIRECTO = process.env.NEXT_PUBLIC_BACKEND_DIRECTO ?? "http://localhost:5232";
+
 function obtenerAdminKey(): string {
   if (typeof window === "undefined") return "";
   return localStorage.getItem("congreso_adminKey") ?? "";
@@ -37,6 +43,7 @@ export interface ResumenGrupo {
   total: number;
   entregados: number;
   pendientes: number;
+  qrEnviados: number;
 }
 
 export interface UltimoEscaneo {
@@ -119,9 +126,9 @@ export const api = {
 
   qrTodosUrl: () => conAdminKey(`${API_URL}/api/Qr/exportar-todos`),
 
-  enviarQrPendientes: () =>
-    fetch(`${API_URL}/api/Qr/enviar-pendientes`, { method: "POST", headers: headersAdmin() }).then((r) =>
-      manejarRespuesta<{ totalPendientesAlEmpezar: number; enviados: number; fallidos: string[] }>(r)
+  enviarQrPendientes: (limite = 10) =>
+    fetch(`${BACKEND_DIRECTO}/api/Qr/enviar-pendientes?limite=${limite}`, { method: "POST", headers: headersAdmin() }).then((r) =>
+      manejarRespuesta<{ totalPendientesAlEmpezar: number; enviados: number; fallidos: string[]; quedanPendientes: number }>(r)
     ),
 
   sincronizarTodo: () =>
